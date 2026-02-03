@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Chat</title>
+<style>
+body{font-family:sans-serif;margin:20px;}
+#messages{border:1px solid #ccc;padding:10px;height:400px;overflow-y:auto;}
+.user{color:blue;margin:5px 0;}
+.bot{color:green;margin:5px 0;}
+input{width:80%;padding:10px;}
+button{padding:10px;}
+</style>
+</head>
+<body>
+<h2>Egyszerű AI Chat</h2>
+<div id="messages"></div>
+<input id="input" placeholder="Írj valamit...">
+<button onclick="send()">Küldés</button>
+
+<script>
+const messages = document.getElementById('messages');
+
+function appendMsg(text, cls){
+  const div = document.createElement('div');
+  div.className = cls;
+  div.innerText = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+async function send(){
+  const input = document.getElementById('input');
+  if(!input.value) return;
+  const text = input.value;
+  appendMsg(text, 'user');
+  input.value = '';
+
+  try {
+    const res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:text})
+    });
+    const data = await res.json();
+    appendMsg(data.answer, 'bot');
+  } catch(e) {
+    appendMsg('Hiba az AI-tól 😢', 'bot');
+  }
+}
+</script>
+</body>
+</html>
